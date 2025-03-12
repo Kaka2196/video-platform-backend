@@ -10,24 +10,26 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yl.videoplatformbackend.common.GlobalCodeEnum;
 import com.yl.videoplatformbackend.common.GlobalException;
-import com.yl.videoplatformbackend.common.R;
-import com.yl.videoplatformbackend.config.JacksonConfig;
 import com.yl.videoplatformbackend.entity.DTO.UserRegisterRequest;
 import com.yl.videoplatformbackend.entity.User;
 import com.yl.videoplatformbackend.mapper.UserMapper;
-import com.yl.videoplatformbackend.service.IUserService;
+import com.yl.videoplatformbackend.service.UserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yl.videoplatformbackend.utils.EncryptPassword;
+import com.yl.videoplatformbackend.utils.WatermarkGenerator;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -38,7 +40,7 @@ import java.util.Map;
  * @since 2024-11-28
  */
 @Service
-public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
+public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
     @Value("${login-status.SECRET_KEY}")
     private String SECRET_KEY;
     @Value("${login-status.SALT}")
@@ -51,6 +53,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     private String SERVICE_NAME = "video-platform-server";
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private SendMailService sendMailService;
+    @Autowired
+    RedissonClient redisson;
 
     @Override
     public String login(User user, HttpServletRequest request, HttpServletResponse response) {
@@ -149,10 +155,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         if(one != null){
             throw new GlobalException(GlobalCodeEnum.SUCCESS,"账户已存在，请重新输入");
         }
+        // 验证码校验
+        RBucket<Integer> bucket = redisson.getBucket("user:" + account);
+        Integer rCode = bucket.get();
+        if(rCode == null || !rCode.equals(userRegisterRequest.getCode())){
+            throw new GlobalException(GlobalCodeEnum.SUCCESS,"验证码错误，请重试");
+        }
+
         // 加密密码
         String encryptPassword = EncryptPassword.encryptPassword(password, SALT);
+        // 生成水印
+//        String waterMarkPath = "C:/Users/Leon/Desktop/serverWatermark/" + account + ".png";
+//        try {
+//            WatermarkGenerator.createTextWatermark(account + " || MyTube", waterMarkPath);
+//        } catch (IOException e) {
+//            throw new GlobalException(GlobalCodeEnum.EX_SYSTEM, "水印生成失败");
+//        }
         User user = new User();
+//        user.setWaterMark(waterMarkPath);
         user.setAccount(account);
+        user.setName(account);
         user.setPassword(encryptPassword);
         return this.save(user);
     }
@@ -171,5 +193,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             return true;
         }
         return false;
+    }
+
+    @Override
+    public Boolean sendCheckCode(String email) {
+        int code = 100000 + new Random().nextInt(900000);
+
+        RBucket<Integer> bucket = redisson.getBucket("user:" + email);
+        boolean flag = bucket.trySet(code, 60, TimeUnit.SECONDS);
+        if(flag){
+            sendMailService.sendSimpleMail(email, "注册验证", String.valueOf(code));
+        }
+        return flag;
     }
 }

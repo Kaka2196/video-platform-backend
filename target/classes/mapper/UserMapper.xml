@@ -9,6 +9,7 @@
         <result column="password" property="password" />
         <result column="name" property="name" />
         <result column="avatar" property="avatar" />
+        <result column="waterMark" property="waterMark" />
         <result column="createTime" property="createTime" />
         <result column="updateTime" property="updateTime" />
         <result column="role" property="role" />
@@ -17,7 +18,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, account, password, name, avatar, createTime, updateTime, role, deleted
+        id, account, password, name, avatar, waterMark, createTime, updateTime, role, deleted
     </sql>
 
 </mapper>

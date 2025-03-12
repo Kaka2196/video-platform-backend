@@ -49,6 +49,8 @@ public class User implements Serializable {
      */
     private String avatar;
 
+    private String waterMark;
+
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;

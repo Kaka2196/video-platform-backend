@@ -6,21 +6,44 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: Lyl11002211
-    url: jdbc:mysql://117.72.70.116:3306/video-platform
+    url: jdbc:mysql://117.72.70.116:3306/video-platform?serverTimezone=UTC&useLegacyDatetimeCode=false
+    hikari:
+      minimum-idle: 5        # 连接池中的最小空闲连接数，保持一定数量的连接不被回收
+      maximum-pool-size: 20   # 连接池最大连接数，避免超载
+      idle-timeout: 6000000    # 空闲连接超时时间（毫秒），默认 10 分钟
+      max-lifetime: 1800000000   # 连接的最大存活时间（毫秒），默认 30 分钟
+      keepalive-time: 3000000  # 连接保持存活的时间间隔（毫秒），默认 5 分钟，防止数据库回收连接
+      connection-timeout: 300000  # 连接超时时间（毫秒），30 秒超时
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5GB
+      max-request-size: 5GB
   mail:
     host: smtp.qq.com
-    username: young.leon@qq.com
-    password: xqsrqmupnjgfgcdb
+    username: 1742181896@qq.com
+    password: fxlnsnelwamlbgch
     default-encoding: utf-8
     properties:
       mail:
         smtp:
           ssl:
             enable: true
-    port: 456
+    port: 465
     protocol: smtp
+  data:
+    redis:
+      database: 1
+      port: 6379
+      host: 117.72.70.116
+  mvc:
+    static-path-pattern: /server/**
+  web:
+    resources:
+      static-locations: file:C:/Users/Leon/Desktop/server/
+      add-mappings: true
 server:
-  port: 8080
+  port: 8081
   servlet:
     session:
       cookie:
@@ -34,9 +57,6 @@ mybatis-plus:
     map-underscore-to-camel-case: false
   global-config:
     db-config:
-      logic-delete-field: deleted # 全局逻辑删除字段名
-      logic-delete-value: 1 # 逻辑已删除值
-      logic-not-delete-value: 0 # 逻辑未删除值
       table-underline: false
 login-status:
   SECRET_KEY: g9sdf8gy89sdgy9hsdfg789sdgsf907ghsd079gvt324vtvminmi6vt34vt43v

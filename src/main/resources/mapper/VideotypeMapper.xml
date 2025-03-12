@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yl.videoplatformbackend.mapper.VideoTypeMapper">
+
+    <resultMap id="BaseResultMap" type="com.yl.videoplatformbackend.entity.VideoType">
+            <id property="id" column="id" />
+            <result property="videoId" column="videoId" />
+            <result property="typeId" column="typeId" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,videoId,typeId
+    </sql>
+</mapper>

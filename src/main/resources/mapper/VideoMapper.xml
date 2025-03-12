@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yl.videoplatformbackend.mapper.VideoMapper">
+
+    <resultMap id="BaseResultMap" type="com.yl.videoplatformbackend.entity.Video">
+            <id property="id" column="id" />
+            <result property="userId" column="userId" />
+            <result property="title" column="title" />
+            <result property="intro" column="intro" />
+            <result property="img" column="img" />
+            <result property="src" column="src" />
+            <result property="likes" column="likes" />
+            <result property="favor" column="favor" />
+            <result property="createTime" column="createTime" />
+            <result property="updateTime" column="updateTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,userId,title,intro,img,src,
+        likes,favor,createTime,updateTime
+    </sql>
+</mapper>
