@@ -164,15 +164,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 加密密码
         String encryptPassword = EncryptPassword.encryptPassword(password, SALT);
-        // 生成水印
-//        String waterMarkPath = "C:/Users/Leon/Desktop/serverWatermark/" + account + ".png";
-//        try {
-//            WatermarkGenerator.createTextWatermark(account + " || MyTube", waterMarkPath);
-//        } catch (IOException e) {
-//            throw new GlobalException(GlobalCodeEnum.EX_SYSTEM, "水印生成失败");
-//        }
+
         User user = new User();
-//        user.setWaterMark(waterMarkPath);
         user.setAccount(account);
         user.setName(account);
         user.setPassword(encryptPassword);

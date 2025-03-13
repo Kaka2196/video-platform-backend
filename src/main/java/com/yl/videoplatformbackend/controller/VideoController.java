@@ -8,6 +8,7 @@ import com.yl.videoplatformbackend.common.GlobalCodeEnum;
 import com.yl.videoplatformbackend.common.GlobalException;
 import com.yl.videoplatformbackend.common.R;
 import com.yl.videoplatformbackend.entity.*;
+import com.yl.videoplatformbackend.entity.DTO.VideoAddRequest;
 import com.yl.videoplatformbackend.entity.DTO.VideoSearchRequest;
 import com.yl.videoplatformbackend.entity.VO.VideoCardVO;
 import com.yl.videoplatformbackend.entity.VO.VideoVO;
@@ -39,21 +40,13 @@ public class VideoController {
     @Autowired
     private UserService userService;
     @Qualifier("objectMapper")
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @PostMapping("/add")
-    public R<Boolean> addVideo(@RequestParam("video") String videoJson,
-                               @RequestParam("videoFile") MultipartFile videoFile,
-                               @RequestParam("imgFile") MultipartFile imgFile,
+    public R<Boolean> addVideo(@RequestPart("video") VideoAddRequest videoAddRequest,
+                               @RequestPart("videoFile") MultipartFile videoFile,
+                               @RequestPart("imgFile") MultipartFile imgFile,
                                HttpServletRequest request) {
-        Video video = null;
-        try {
-            video = objectMapper.readValue(videoJson, Video.class);
-        } catch (JsonProcessingException e) {
-            return R.fail(GlobalCodeEnum.EX_SYSTEM, "json转换失败: " + e.getMessage());
-        }
-        return R.success(videoService.add(video, request, videoFile, imgFile));
+        return R.success(videoService.add(videoAddRequest, request, videoFile, imgFile));
     }
 
     @PutMapping("/update")
@@ -109,15 +102,15 @@ public class VideoController {
     public R<List<VideoCardVO>> indexList(VideoSearchRequest videoSearchRequest) {
         LambdaQueryWrapper<Video> queryWrapper = new LambdaQueryWrapper<>();
         String keyword = videoSearchRequest.getKeyword();
-            queryWrapper.like(Video::getTitle, keyword).eq(Video::getPass, 1);
+        queryWrapper.like(Video::getTitle, keyword).eq(Video::getPass, 1);
         List<Video> videoList = videoService.list(queryWrapper);
 
-        if(videoList == null || videoList.isEmpty()) {
+        if (videoList == null || videoList.isEmpty()) {
             return R.success();
         }
 
         String type = videoSearchRequest.getType();
-        if(type != null && !type.isEmpty()) {
+        if (type != null && !type.isEmpty()) {
             Type one = typeService.getOne(new LambdaQueryWrapper<Type>().eq(Type::getName, type));
             if (one != null) {
                 Integer typeId = one.getId();
@@ -164,5 +157,12 @@ public class VideoController {
         videoVO.setType(types.stream().map(Type::getName).toList());
 
         return R.success(videoVO);
+    }
+
+    @GetMapping("/listUser")
+    public R<List<Video>> listUserId(int userId) {
+        LambdaQueryWrapper<Video> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(Video::getUserId, userId).eq(Video::getPass, 1);
+        return R.success(videoService.list(queryWrapper));
     }
 }

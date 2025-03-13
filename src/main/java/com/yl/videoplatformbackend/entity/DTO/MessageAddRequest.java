@@ -1,11 +1,15 @@
 package com.yl.videoplatformbackend.entity.DTO;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
 @Data
-public class MessageAddRequest implements Serializable {
+@NoArgsConstructor
+@AllArgsConstructor
+public class MessageAddRequest {
 
 
     /**
@@ -34,5 +38,4 @@ public class MessageAddRequest implements Serializable {
     private Integer isGroup;
 
 
-    private static final long serialVersionUID = 1L;
 }

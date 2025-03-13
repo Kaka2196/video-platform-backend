@@ -40,6 +40,8 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
         BeanUtils.copyProperties(message,messageListVO);
         User senderUser = userService.getById(message.getSenderId());
         User receiverUser = userService.getById(message.getReceiverId());
+        messageListVO.setReceiverId(message.getReceiverId());
+        messageListVO.setSenderId(message.getSenderId());
         messageListVO.setSenderAvatar(senderUser.getAvatar());
         messageListVO.setSenderName(senderUser.getName());
         messageListVO.setReceiverAvatar(receiverUser.getAvatar());

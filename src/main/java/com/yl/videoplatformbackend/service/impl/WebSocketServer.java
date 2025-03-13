@@ -107,7 +107,6 @@ public class WebSocketServer {
             String content = messageAddRequest.getContent();
             Integer type = messageAddRequest.getType();
 
-            // 0私聊 1群聊
             Integer isGroup = messageAddRequest.getIsGroup();
 
             try{

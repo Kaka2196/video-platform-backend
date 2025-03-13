@@ -2,6 +2,10 @@ package com.yl.videoplatformbackend.entity;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 /**
@@ -9,10 +13,12 @@ import lombok.Data;
  * @TableName video
  */
 @Data
+@TableName("video")
 public class Video implements Serializable {
     /**
      * 
      */
+    @TableId(type = IdType.AUTO)
     private Integer id;
 
     /**
