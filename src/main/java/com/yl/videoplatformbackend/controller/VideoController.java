@@ -53,6 +53,16 @@ public class VideoController {
     public R<Boolean> updateVideo(@RequestBody Video video) {
         return R.success(videoService.updateById(video));
     }
+    @PutMapping("/updateShow")
+    public R<Boolean> updateShowVideo(@RequestParam Integer id) {
+        Video video = videoService.getById(id);
+        if (video.getShowVideo() == 0) {
+            video.setShowVideo(1);
+        }else{
+            video.setShowVideo(0);
+        }
+        return R.success(videoService.updateById(video));
+    }
 
     @DeleteMapping("/delete")
     public R<Boolean> deleteVideo(int id) {
@@ -62,7 +72,13 @@ public class VideoController {
     @GetMapping("/list")
     public R<List<Video>> listVideo(VideoSearchRequest videoSearchRequest) {
         LambdaQueryWrapper<Video> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.like(Video::getTitle, videoSearchRequest.getKeyword()).eq(Video::getPass, 0);
+        queryWrapper.like(Video::getTitle, videoSearchRequest.getKeyword()).eq(Video::getPass, 0).eq(Video::getShowVideo, 0);
+        return R.success(videoService.list(queryWrapper));
+    }
+    @GetMapping("/listManage")
+    public R<List<Video>> listVideoManage(VideoSearchRequest videoSearchRequest) {
+        LambdaQueryWrapper<Video> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(Video::getTitle, videoSearchRequest.getKeyword()).eq(Video::getPass, 1);
         return R.success(videoService.list(queryWrapper));
     }
 
@@ -102,7 +118,7 @@ public class VideoController {
     public R<List<VideoCardVO>> indexList(VideoSearchRequest videoSearchRequest) {
         LambdaQueryWrapper<Video> queryWrapper = new LambdaQueryWrapper<>();
         String keyword = videoSearchRequest.getKeyword();
-        queryWrapper.like(Video::getTitle, keyword).eq(Video::getPass, 1);
+        queryWrapper.like(Video::getTitle, keyword).eq(Video::getPass, 1).eq(Video::getShowVideo, 0);
         List<Video> videoList = videoService.list(queryWrapper);
 
         if (videoList == null || videoList.isEmpty()) {

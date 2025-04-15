@@ -13,12 +13,13 @@
             <result property="src" column="src" />
             <result property="likes" column="likes" />
             <result property="favor" column="favor" />
+            <result property="showVideo" column="showVideo" />
             <result property="createTime" column="createTime" />
             <result property="updateTime" column="updateTime" />
     </resultMap>
 
     <sql id="Base_Column_List">
         id,userId,title,intro,img,src,
-        likes,favor,createTime,updateTime
+        likes,favor,showVideo,createTime,updateTime
     </sql>
 </mapper>

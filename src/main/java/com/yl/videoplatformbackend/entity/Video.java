@@ -67,6 +67,7 @@ public class Video implements Serializable {
     private Date updateTime;
 
     private Integer pass;
+    private Integer showVideo;
 
     private Integer view;
 

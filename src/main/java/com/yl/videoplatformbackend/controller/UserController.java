@@ -33,6 +33,12 @@ public class UserController {
         return R.success(userService.list());
     }
 
+    @GetMapping("/listUsersByKeyword")
+    public R<List<User>> listUsersByKeyword(String keyword) {
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(User::getName, keyword);
+        return R.success(userService.list(queryWrapper));
+    }
     @PostMapping("/login")
     public R<String> login(@RequestBody User user, HttpServletRequest request, HttpServletResponse response) {
         if (user == null || user.getAccount() == null || user.getPassword() == null) {
@@ -64,13 +70,33 @@ public class UserController {
 
     @GetMapping("/sendCheckCode")
     public R<Boolean> sendCheckCode(String email) {
-        if(email == null || email.isEmpty()) {
+        if (email == null || email.isEmpty()) {
             return R.fail(GlobalCodeEnum.EX_PARAMS, "邮箱为空");
         }
         User user = userService.getOne(new LambdaQueryWrapper<User>().eq(User::getAccount, email));
-        if(user != null) {
+        if (user != null) {
             return R.fail(GlobalCodeEnum.EX_PARAMS, "该邮箱已注册！");
         }
         return R.success(userService.sendCheckCode(email));
+    }
+
+    @PutMapping("/updateRole")
+    public R<Boolean> updateRole(Integer id, Integer role, HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        if (loginUser == null || loginUser.getRole() != 1) {
+            return R.fail(GlobalCodeEnum.EX_PARAMS, "无权限");
+        }
+        User user = userService.getById(id);
+        if (user == null) {
+            return R.fail(GlobalCodeEnum.EX_PARAMS, "用户不存在");
+        }
+        if (loginUser.getId() == id){
+            return R.fail(GlobalCodeEnum.EX_PARAMS,"不可修改自己");
+        }
+        if (user.getRole() == 1){
+            return R.fail(GlobalCodeEnum.EX_PARAMS,"无权限");
+        }
+        user.setRole(role);
+        return R.success(userService.updateById(user));
     }
 }
