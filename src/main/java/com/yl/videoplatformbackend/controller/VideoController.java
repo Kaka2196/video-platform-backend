@@ -32,6 +32,10 @@ public class VideoController {
     @Autowired
     private VideoService videoService;
     @Autowired
+    private VideoThumbService videoThumbService;
+    @Autowired
+    private VideoFavourService videoFavourService;
+    @Autowired
     private VideoResolutionService videoResolutionService;
     @Autowired
     private VideoTypeService videoTypeService;
@@ -39,6 +43,7 @@ public class VideoController {
     private TypeService typeService;
     @Autowired
     private UserService userService;
+
     @Qualifier("objectMapper")
 
     @PostMapping("/add")
@@ -53,12 +58,13 @@ public class VideoController {
     public R<Boolean> updateVideo(@RequestBody Video video) {
         return R.success(videoService.updateById(video));
     }
+
     @PutMapping("/updateShow")
     public R<Boolean> updateShowVideo(@RequestParam Integer id) {
         Video video = videoService.getById(id);
         if (video.getShowVideo() == 0) {
             video.setShowVideo(1);
-        }else{
+        } else {
             video.setShowVideo(0);
         }
         return R.success(videoService.updateById(video));
@@ -68,13 +74,24 @@ public class VideoController {
     public R<Boolean> deleteVideo(int id) {
         return R.success(videoService.removeById(id));
     }
+    @GetMapping("/getFavoriteVideos")
+    public R<List<Video>> getFavoriteVideos(int userId) {
+        List<VideoFavour> videoFavourList = videoFavourService.list(
+                new LambdaQueryWrapper<VideoFavour>().eq(VideoFavour::getUserId, userId));
+        if(videoFavourList.isEmpty()){
+            return R.success(Collections.emptyList());
+        }
+        List<Integer> videoIds = videoFavourList.stream().map(VideoFavour::getVideoId).toList();
+        return R.success(videoService.listByIds(videoIds));
 
+    }
     @GetMapping("/list")
     public R<List<Video>> listVideo(VideoSearchRequest videoSearchRequest) {
         LambdaQueryWrapper<Video> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.like(Video::getTitle, videoSearchRequest.getKeyword()).eq(Video::getPass, 0).eq(Video::getShowVideo, 0);
         return R.success(videoService.list(queryWrapper));
     }
+
     @GetMapping("/listManage")
     public R<List<Video>> listVideoManage(VideoSearchRequest videoSearchRequest) {
         LambdaQueryWrapper<Video> queryWrapper = new LambdaQueryWrapper<>();
@@ -154,13 +171,31 @@ public class VideoController {
     }
 
     @GetMapping("/detail/{id}")
-    public R<VideoVO> detail(@PathVariable Integer id) {
+    public R<VideoVO> detail(@PathVariable Integer id, HttpServletRequest request) {
         Video video = videoService.getById(id);
         if (video == null) {
             return R.fail("视频数据不存在");
         }
         VideoVO videoVO = new VideoVO();
         BeanUtils.copyProperties(video, videoVO);
+        videoVO.setIsFavour(0);
+        videoVO.setIsLike(0);
+        User loginUser = userService.getLoginUser(request);
+        if (loginUser != null) {
+            LambdaQueryWrapper<VideoThumb> qw = new LambdaQueryWrapper<>();
+            qw.eq(VideoThumb::getVideoId, video.getId()).eq(VideoThumb::getUserId, loginUser.getId());
+            VideoThumb videoThumb = videoThumbService.getOne(qw);
+            if (videoThumb != null) {
+                videoVO.setIsLike(1);
+            }
+
+            LambdaQueryWrapper<VideoFavour> qw2 = new LambdaQueryWrapper<>();
+            qw2.eq(VideoFavour::getVideoId, video.getId()).eq(VideoFavour::getUserId, loginUser.getId());
+            VideoFavour videoFavour = videoFavourService.getOne(qw2);
+            if (videoFavour != null) {
+                videoVO.setIsFavour(1);
+            }
+        }
 
         videoVO.setUser(Optional.ofNullable(userService.getById(video.getUserId())).orElse(new User()));
         videoVO.setResolution(videoResolutionService.list(

@@ -58,6 +58,10 @@ public class VideoVO implements Serializable {
      */
     private Integer favor;
 
+    private Integer isLike;
+
+    private Integer isFavour;
+
     /**
      * 
      */
