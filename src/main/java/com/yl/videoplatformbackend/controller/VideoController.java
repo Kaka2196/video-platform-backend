@@ -216,4 +216,13 @@ public class VideoController {
         queryWrapper.like(Video::getUserId, userId).eq(Video::getPass, 1);
         return R.success(videoService.list(queryWrapper));
     }
+    @PutMapping("/updateView")
+    public R<Boolean> updateView(Integer videoId) {
+        Video video = videoService.getById(videoId);
+        if(video == null){
+            return R.fail(GlobalCodeEnum.EX_PARAMS, "视频数据不存在");
+        }
+        video.setView(video.getView() + 1);
+        return R.success(videoService.updateById(video));
+    }
 }

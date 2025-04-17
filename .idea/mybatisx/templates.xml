@@ -69,8 +69,8 @@
             <option name="tableUIInfoList">
               <list>
                 <TableUIInfo>
-                  <option name="className" value="VideoCommentThumb" />
-                  <option name="tableName" value="videoCommentThumb" />
+                  <option name="className" value="Relation" />
+                  <option name="tableName" value="relation" />
                 </TableUIInfo>
               </list>
             </option>
